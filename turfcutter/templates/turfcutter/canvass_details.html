@@ -77,7 +77,7 @@ function map_init_canvass_area (map, options){
         <div class='detail-subpanel'>
         <ul>
         {% for parcel in turf_info.parcels %}
-          <li>{{ parcel.prop_street_num }} {{parcel.prop_street}}</li>
+          <li>{{ parcel.prop_street_num }} {{parcel.prop_street}} {{parcel.firstname}} {{parcel.lastname}}</li>
         {% endfor %}
         </ul>
         </div>

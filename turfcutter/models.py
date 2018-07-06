@@ -219,6 +219,11 @@ class Parcel(models.Model):
         managed = False
         db_table = 'parcel'
 
+        indexes = [
+          models.Index(fields=['prop_street_num', 'prop_street']),
+          models.Index(fields=['prop_street'])
+        ]
+
     def __str__(self):
         return '%s' % self.pin
 

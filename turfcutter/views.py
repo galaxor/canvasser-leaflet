@@ -15,9 +15,19 @@ from reportlab.lib import colors
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 
+from django.db import connection
+
 import os
 
 from .forms import *
+
+from collections import namedtuple
+
+def namedtuplefetchall(cursor):
+    "Return all rows from a cursor as a namedtuple"
+    desc = cursor.description
+    nt_result = namedtuple('Result', [col[0] for col in desc])
+    return [nt_result(*row) for row in cursor.fetchall()]
 
 
 class UntrimmedTiledGeoJSONLayerView(TiledGeoJSONLayerView):
@@ -128,12 +138,29 @@ def canvass_details(request, canvass_id):
     this_canvass_area = get_object_or_404(CanvassArea, canvass_id=canvass_id)
     these_turfs = Turf.objects.filter(canvass_id=canvass_id).order_by('name')
     turf_info = {}
+
+    cursor = connection.cursor()
+
     for turf in these_turfs:
-        these_parcels = Parcel.objects\
-            .filter(centroid__within=turf.geom)\
-            .order_by('prop_street', 'prop_street_num')
+        infoquery = """
+            SELECT parcel.prop_street_num, parcel.prop_street, turfcutter_voter.*
+            FROM parcel
+                 INNER JOIN turfcutter_turf ON ST_Within(parcel.centroid, turfcutter_turf.geom)
+                 LEFT JOIN turfcutter_voter ON turfcutter_voter.address=parcel.prop_street_num||' '||parcel.prop_street
+            WHERE turfcutter_turf.canvass_id='%s'
+              AND turfcutter_turf.id='%s'
+            ORDER BY parcel.prop_street, parcel.prop_street_num, turfcutter_voter.firstname, turfcutter_voter.lastname
+            """
+
+        cursor.execute(infoquery, [canvass_id, turf.id])
+
+        these_parcels = []
+        for this_parcel in namedtuplefetchall(cursor):
+            these_parcels.append(this_parcel)
+
         this_info = {'turf': turf, 'parcels': these_parcels}
         turf_info[turf.id] = this_info
+
     return render(request, 'turfcutter/canvass_details.html',
         {'canvass': this_canvass, 'canvass_area': this_canvass_area,
         'turf_info_dict': turf_info})
