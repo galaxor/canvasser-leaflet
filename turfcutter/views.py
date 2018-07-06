@@ -149,7 +149,7 @@ def canvass_details(request, canvass_id):
                  LEFT JOIN turfcutter_voter ON turfcutter_voter.address=parcel.prop_street_num||' '||parcel.prop_street
             WHERE turfcutter_turf.canvass_id='%s'
               AND turfcutter_turf.id='%s'
-            ORDER BY parcel.prop_street, parcel.prop_street_num, turfcutter_voter.firstname, turfcutter_voter.lastname
+            ORDER BY parcel.prop_street, parcel.prop_street_num %% 2, parcel.prop_street_num, turfcutter_voter.firstname, turfcutter_voter.lastname
             """
 
         cursor.execute(infoquery, [canvass_id, turf.id])
