@@ -133,7 +133,7 @@ def campaign_details(request, campaign_id):
         {'campaign': this_campaign, 'canvass_list': canvass_list})
 
 
-def canvass_details(request, canvass_id):
+def canvass_get_details(canvass_id):
     this_canvass = get_object_or_404(Canvass, id=canvass_id)
     this_canvass_area = get_object_or_404(CanvassArea, canvass_id=canvass_id)
     these_turfs = Turf.objects.filter(canvass_id=canvass_id).order_by('name')
@@ -143,13 +143,13 @@ def canvass_details(request, canvass_id):
 
     for turf in these_turfs:
         infoquery = """
-            SELECT parcel.prop_street_num, parcel.prop_street, turfcutter_voter.*
+            SELECT parcel.prop_street_num, parcel.prop_street, parcel.unit_apt_num, turfcutter_voter.*
             FROM parcel
                  INNER JOIN turfcutter_turf ON ST_Within(parcel.centroid, turfcutter_turf.geom)
                  LEFT JOIN turfcutter_voter ON turfcutter_voter.address=parcel.prop_street_num||' '||parcel.prop_street
             WHERE turfcutter_turf.canvass_id='%s'
               AND turfcutter_turf.id='%s'
-            ORDER BY parcel.prop_street, parcel.prop_street_num %% 2, parcel.prop_street_num, turfcutter_voter.firstname, turfcutter_voter.lastname
+            ORDER BY parcel.prop_street, parcel.prop_street_num %% 2, parcel.prop_street_num, parcel.unit_apt_num, turfcutter_voter.firstname, turfcutter_voter.lastname
             """
 
         cursor.execute(infoquery, [canvass_id, turf.id])
@@ -161,23 +161,19 @@ def canvass_details(request, canvass_id):
         this_info = {'turf': turf, 'parcels': these_parcels}
         turf_info[turf.id] = this_info
 
-    return render(request, 'turfcutter/canvass_details.html',
-        {'canvass': this_canvass, 'canvass_area': this_canvass_area,
-        'turf_info_dict': turf_info})
+    return {'canvass': this_canvass, 'canvass_area': this_canvass_area,
+            'turf_info_dict': turf_info}
 
+def canvass_details(request, canvass_id):
+  details = canvass_get_details(canvass_id)
+  return render(request, 'turfcutter/canvass_details.html', details)
 
 def canvass_pdf(request, canvass_id):
+    details = canvass_get_details(canvass_id)
+
     this_canvass = get_object_or_404(Canvass, id=canvass_id)
     this_canvass_area = get_object_or_404(CanvassArea, canvass_id=canvass_id)
     these_turfs = Turf.objects.filter(canvass_id=canvass_id)
-
-    turf_info = []
-    for turf in these_turfs:
-        these_parcels = Parcel.objects.filter(
-            centroid__within=turf.geom).order_by(
-            'prop_street', 'prop_street_num')
-        this_info = {'turf': turf, 'parcels': these_parcels}
-        turf_info.append(this_info)
 
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = \
@@ -199,7 +195,8 @@ def canvass_pdf(request, canvass_id):
         ('FONTSIZE', (0, 0), (0, 0), 16)
     ])
 
-    for info in turf_info:
+    for turfid, info in details['turf_info_dict'].items():
+        print(info)
         turfname_row = ['Turf %s' % info['turf'].name, '', '', '', '', '', '']
         header_buffer = [''] * len(turfname_row)
         header = ['Address', 'Home?', 'Accept?', 'Response', '', '', 'Notes']
