@@ -32,6 +32,9 @@ cur.execute(query)
 print("""
 \\documentclass{article}
 
+\\usepackage{fancyhdr}
+\\pagestyle{fancy}
+
 \\newcommand{\\ckbx}{\\framebox[1.2em]{\\parbox[c][0.5em][t]{1em}{ }}\\,}
 \\newcommand{\\ckbxck}{\\framebox[1.2em]{\\parbox[c][0.5em][t]{1em}{X}}\\,}
 
@@ -45,15 +48,20 @@ laststreet = None
 lastside = None
 print('\\vbox{')
 for row in namedtuplefetchall(cur):
+  print('\\fancyhead[L]{TURF %d}' % row.turfid)
+  print('\\fancyhead[C]{%s}' % row.prop_street)
+  if row.prop_street_num % 2 == 0:
+    print('\\fancyhead[R]{Even}')
+  else:
+    print('\\fancyhead[R]{Odd}')
+
   if row.address != lastaddr:
     print('}')
     if not (lastturf == None and lastaddr == None and lastapt == None and lastside == None)\
         and (row.turfid != lastturf\
           or row.prop_street != laststreet\
           or row.prop_street_num % 2 != lastside):
-      print('TID(%s) PS(%s) SIDE(%s)' % (row.turfid, row.prop_street, row.prop_street_num % 2))
       print()
-      print('LID(%s) LS(%s) LIDE(%s)' % (lastturf, laststreet, lastside))
       print('\\newpage')
 
     print('\\vbox{')
@@ -82,7 +90,16 @@ for row in namedtuplefetchall(cur):
 
   print()
   print('\\noindent')
-  print('\\hspace{4ex}Notes: \\vspace{2em}')
+  print('\\hspace{4ex}Friend or Foe of Shauna: \\framebox{1} \\framebox{2} \\framebox{3} \\framebox{4} \\framebox{5}')
+  print()
+
+  print('\\noindent')
+  print('\\hspace{4ex}Friend or Foe of Ryan: \\framebox{1} \\framebox{2} \\framebox{3} \\framebox{4} \\framebox{5}')
+  print()
+
+  print()
+  print('\\noindent')
+  print('\\hspace{4ex}Notes: \\vspace{3em}')
   print()
 
   lastturf = row.turfid
