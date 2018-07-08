@@ -41,7 +41,7 @@ print("""
 \\begin{document}
 
 \\fancyfoot[C]{}
-\\fancyfoot[L]{FoF: 1=Will Campaign Against,  2=Will Vote Against,  3=Flippable,  4=Will Vote For,  5=Will Campaign For}
+\\fancyfoot[L]{* FoF: 1=Will~Campaign~Against,  2=Will~Vote~Against,  3=Flippable,  4=Will~Vote~For,  5=Will~Campaign~For}
 
 """)
 
@@ -71,7 +71,7 @@ for row in namedtuplefetchall(cur):
     print('\\vbox{')
     print('\\hrule')
     print('\\noindent')
-    print('\\makebox[40ex][l]{\\bf %s} \\ckbx Flier Drop' % escapelatex(row.address))
+    print('\\makebox[40ex][l]{\\bf %s} \\ckbx Flier Drop \\ckbx No Solicitors' % escapelatex(row.address))
   if row.apt != lastapt and row.apt != None:
     if row.address == lastaddr:
       print()
@@ -79,26 +79,34 @@ for row in namedtuplefetchall(cur):
     print('\\noindent\\hspace*{4ex}\\hrulefill')
     print()
     print('\\noindent')
-    print('\\makebox[40ex][l]{\\makebox[4ex][r]{ }\\bf %s} \\ckbx Flier Drop' % escapelatex(row.apt))
+    print('\\makebox[40ex][l]{\\makebox[4ex][r]{ }\\bf %s} \\ckbx Flier Drop \\ckbx No Solicitors' % escapelatex(row.apt))
 
   print()
   print('\\noindent')
 
   name = ' '.join([row.firstname, row.lastname])
-  person = escapelatex('%s, %s, %d.' % (name, row.gender, row.age))
+  person = '{\\bf %s}, %s, %d.' % (escapelatex(name), escapelatex(row.gender), row.age)
   v_may = ['\\ckbx', '\\ckbxck'][row.v_may]
   v_nov = ['\\ckbx', '\\ckbxck'][row.v_nov]
   v_aug = ['\\ckbx', '\\ckbxck'][row.v_aug]
 
-  print('\\makebox[40ex][l]{\\makebox[4ex][r]{ }%s} Voted: %s May\\quad %s Nov\\quad %s Aug' % (person, v_may, v_aug, v_nov))
+  print('\\makebox[45ex][l]{\\makebox[4ex][r]{ }%s} Voted: %s May\\enspace %s Nov\\enspace %s Aug' % (person, v_may, v_aug, v_nov))
 
   print()
   print('\\noindent')
-  print('\\hspace{4ex}Friend or Foe of Shauna: \\framebox{1} \\framebox{2} \\framebox{3} \\framebox{4} \\framebox{5}')
+  print('\\hspace{6ex}\\ckbx Not Home\\qquad \\ckbx Refused')
   print()
 
   print('\\noindent')
-  print('\\hspace{4ex}Friend or Foe of Ryan: \\framebox{1} \\framebox{2} \\framebox{3} \\framebox{4} \\framebox{5}')
+  print('\\hspace{6ex}Friend or Foe* of Shauna: \\framebox{1} \\framebox{2} \\framebox{3} \\framebox{4} \\framebox{5}')
+  print()
+
+  print('\\noindent')
+  print('\\hspace{6ex}Friend or Foe* of Ryan: \\framebox{1} \\framebox{2} \\framebox{3} \\framebox{4} \\framebox{5}')
+  print()
+
+  print('\\noindent')
+  print('\\hspace{6ex}Friend or Foe* of DSA: \\framebox{1} \\framebox{2} \\framebox{3} \\framebox{4} \\framebox{5}')
   print()
 
   print()
