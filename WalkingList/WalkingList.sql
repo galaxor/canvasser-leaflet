@@ -1,5 +1,5 @@
 SELECT
-  testturfs.id AS turfid,
+  turfz.id AS turfid,
   MAX(voter_geom.address) AS address,
   MAX(voter_geom.resext) AS apt,
   MAX(voter_geom.firstname) AS firstname,
@@ -16,15 +16,15 @@ SELECT
   
   
 FROM
-  testturfs 
-  LEFT JOIN voter_geom voter_geom ON ST_Within(voter_geom.geom, testturfs.geom)
+  turfz 
+  LEFT JOIN voter_geom voter_geom ON ST_Within(voter_geom.geom, turfz.geom)
 
 GROUP BY
-  testturfs.id,
+  turfz.id,
   voter_geom.voterid
 
 ORDER BY
-  testturfs.id,
+  turfz.id,
 
   MAX(voter_geom.prop_street),
   MAX(voter_geom.prop_street_num) % 2,
