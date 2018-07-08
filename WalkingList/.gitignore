@@ -1,0 +1,6 @@
+core
+.*.swp
+*.latex
+*.aux
+*.pdf
+*.log
