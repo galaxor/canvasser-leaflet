@@ -39,6 +39,10 @@ print("""
 \\newcommand{\\ckbxck}{\\framebox[1.2em]{\\parbox[c][0.5em][t]{1em}{X}}\\,}
 
 \\begin{document}
+
+\\fancyfoot[C]{}
+\\fancyfoot[L]{FoF: 1=Will Campaign Against,  2=Will Vote Against,  3=Flippable,  4=Will Vote For,  5=Will Campaign For}
+
 """)
 
 lastturf = None
