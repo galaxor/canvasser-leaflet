@@ -196,18 +196,34 @@ def canvass_pdf(request, canvass_id):
     ])
 
     for turfid, info in details['turf_info_dict'].items():
-        print(info)
         turfname_row = ['Turf %s' % info['turf'].name, '', '', '', '', '', '']
         header_buffer = [''] * len(turfname_row)
         header = ['Address', 'Home?', 'Accept?', 'Response', '', '', 'Notes']
         parcel_table = [turfname_row, header_buffer, header]
 
+        last_address = None
+
         for parcel in info['parcels']:
             apt_num = '' if parcel.unit_apt_num is None else parcel.unit_apt_num
             parcel_address = '%s %s' % (parcel.prop_street_num, parcel.prop_street)
-            parcel_table.append([parcel_address, '', '', '\u263A', u"\U0001F610", '\u2639', ' ' * 40])
 
-        t = Table(parcel_table, colWidths=[150, 45, 45, 20, 20, 20, 265], repeatRows=2)
+            if parcel_address == last_address:
+              if parcel.firstname or parcel.lastname:
+                  personname = '---%s %s' % (parcel.firstname, parcel.lastname)
+              else:
+                  personname = '---Person'
+              parcel_table.append([personname, '', '', '\u263A', u"\U0001F610", '\u2639', ' ' * 40])
+            else:
+              parcel_table.append([parcel_address, '', '', '\u263A', u"\U0001F610", '\u2639', ' ' * 40])
+              if parcel.firstname or parcel.lastname:
+                  personname = '---%s %s' % (parcel.firstname, parcel.lastname)
+              else:
+                  personname = '---Person'
+              parcel_table.append([personname, '', '', '\u263A', u"\U0001F610", '\u2639', ' ' * 40])
+
+            last_address = parcel_address
+
+        t = Table(parcel_table, colWidths=[150, 45, 45, 20, 20, 20, 265])
         t.setStyle(style)
         contents.append(t)
         contents.append(PageBreak())
