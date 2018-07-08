@@ -38,12 +38,23 @@ print("""
 \\begin{document}
 """)
 
+lastturf = None
 lastaddr = None
 lastapt = None
+laststreet = None
+lastside = None
 print('\\vbox{')
 for row in namedtuplefetchall(cur):
   if row.address != lastaddr:
     print('}')
+    if not (lastturf == None and lastaddr == None and lastapt == None and lastside == None)\
+        and (row.turfid != lastturf\
+          or row.prop_street != laststreet\
+          or row.prop_street_num % 2 != lastside):
+      print('TID(%s) PS(%s) SIDE(%s)' % (row.turfid, row.prop_street, row.prop_street_num % 2))
+      print()
+      print('LID(%s) LS(%s) LIDE(%s)' % (lastturf, laststreet, lastside))
+      print('\\newpage')
 
     print('\\vbox{')
     print('\\hrule')
@@ -56,7 +67,7 @@ for row in namedtuplefetchall(cur):
     print('\\noindent\\hspace*{4ex}\\hrulefill')
     print()
     print('\\noindent')
-    print('\\makebox[40ex][l]{\\makebox[4ex][r]{ }%s} \\ckbx Flier Drop' % escapelatex(row.apt))
+    print('\\makebox[40ex][l]{\\makebox[4ex][r]{ }\\bf %s} \\ckbx Flier Drop' % escapelatex(row.apt))
 
   print()
   print('\\noindent')
@@ -74,7 +85,10 @@ for row in namedtuplefetchall(cur):
   print('\\hspace{4ex}Notes: \\vspace{2em}')
   print()
 
+  lastturf = row.turfid
   lastaddr = row.address
+  laststreet = row.prop_street
+  lastside = row.prop_street_num % 2
   lastapt = row.apt
 
 print('}')

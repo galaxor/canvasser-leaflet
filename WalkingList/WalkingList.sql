@@ -1,5 +1,5 @@
 SELECT
-  testturfs.id,
+  testturfs.id AS turfid,
   MAX(voter_geom.address) AS address,
   MAX(voter_geom.resext) AS apt,
   MAX(voter_geom.firstname) AS firstname,
@@ -9,7 +9,10 @@ SELECT
 
   MAX((voter_geom.electiondate='2018-05-08')::integer) AS v_may,
   MAX((voter_geom.electiondate='2017-11-07')::integer) AS v_nov,
-  MAX((voter_geom.electiondate='2017-08-08')::integer) AS v_aug
+  MAX((voter_geom.electiondate='2017-08-08')::integer) AS v_aug,
+
+  MAX(voter_geom.prop_street) AS prop_street,
+  MAX(voter_geom.prop_street_num) AS prop_street_num
   
   
 FROM
