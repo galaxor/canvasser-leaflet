@@ -30,9 +30,9 @@ with open(os.path.join(os.path.dirname(__file__), 'WalkingList.sql'), 'r') as qr
 cur.execute(query)
 
 print("""
-\\documentclass{article}
-
+\\documentclass[8pt,letterpaper]{extarticle}
 \\usepackage{fancyhdr}
+\\usepackage{extsizes}
 \\pagestyle{fancy}
 
 \\newcommand{\\ckbx}{\\framebox[1.2em]{\\parbox[c][0.5em][t]{1em}{ }}\\,}
