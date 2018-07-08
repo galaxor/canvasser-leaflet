@@ -50,11 +50,21 @@ lastaddr = None
 lastapt = None
 laststreet = None
 lastside = None
-print('\\vbox{')
+
+first = True
+
 for row in namedtuplefetchall(cur):
-  print('\\fancyhead[L]{TURF %d}' % row.turfid)
-  print('\\fancyhead[C]{%s}' % row.prop_street)
-  if row.prop_street_num % 2 == 0:
+  if first:
+    print('\\fancyhead[L]{TURF %d}' % row.turfid)
+    print('\\fancyhead[C]{%s}' % row.prop_street)
+    print('\\vbox{')
+    first = False
+
+  prop_street_num = row.prop_street_num
+  if prop_street_num==None:
+    prop_street_num = 0
+
+  if prop_street_num % 2 == 0:
     print('\\fancyhead[R]{Even}')
   else:
     print('\\fancyhead[R]{Odd}')
@@ -64,9 +74,12 @@ for row in namedtuplefetchall(cur):
     if not (lastturf == None and lastaddr == None and lastapt == None and lastside == None)\
         and (row.turfid != lastturf\
           or row.prop_street != laststreet\
-          or row.prop_street_num % 2 != lastside):
+          or prop_street_num % 2 != lastside):
       print()
       print('\\newpage')
+
+      print('\\fancyhead[L]{TURF %d}' % row.turfid)
+      print('\\fancyhead[C]{%s}' % row.prop_street)
 
     print('\\vbox{')
     print('\\hrule')
@@ -84,8 +97,16 @@ for row in namedtuplefetchall(cur):
   print()
   print('\\noindent')
 
-  name = ' '.join([row.firstname, row.lastname])
-  person = '{\\bf %s}, %s, %d.' % (escapelatex(name), escapelatex(row.gender), row.age)
+  firstname = row.firstname
+  lastname = row.lastname
+  if firstname == None: firstname = ''
+  if lastname == None: lastname = ''
+  gender = row.gender
+  if row.gender == None: gender=''
+  name = ' '.join([firstname, lastname])
+  age = row.age
+  if row.age == None: age = 0
+  person = '{\\bf %s}, %s, %d.' % (escapelatex(name), escapelatex(gender), age)
   v_may = ['\\ckbx', '\\ckbxck'][row.v_may]
   v_nov = ['\\ckbx', '\\ckbxck'][row.v_nov]
   v_aug = ['\\ckbx', '\\ckbxck'][row.v_aug]
@@ -117,7 +138,7 @@ for row in namedtuplefetchall(cur):
   lastturf = row.turfid
   lastaddr = row.address
   laststreet = row.prop_street
-  lastside = row.prop_street_num % 2
+  lastside = prop_street_num % 2
   lastapt = row.apt
 
 print('}')
