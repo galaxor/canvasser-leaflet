@@ -1,7 +1,8 @@
 SELECT
   turfz.id AS turfid,
+  voter_geom.voterid AS voterid,
   MAX(voter_geom.address) AS address,
-  MAX(voter_geom.resext) AS apt,
+  COALESCE(MAX(voter_geom.resext), '') AS apt,
   MAX(voter_geom.firstname) AS firstname,
   MAX(voter_geom.lastname) AS lastname,
   MAX(voter_geom.gender) AS gender,
