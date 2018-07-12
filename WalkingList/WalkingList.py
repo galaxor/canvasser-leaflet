@@ -2,6 +2,7 @@
 
 import os
 import psycopg2
+import sys
 
 from collections import namedtuple
 
@@ -24,7 +25,11 @@ conn = psycopg2.connect('dbname=postgres user=postgres host=postgres password=%s
 
 cur = conn.cursor()
 
-with open(os.path.join(os.path.dirname(__file__), 'WalkingList.sql'), 'r') as qrfl:
+queryfile = os.path.join(os.path.dirname(__file__), 'WalkingList.sql')
+if len(sys.argv) > 1:
+  queryfile = sys.argv[1]
+
+with open(queryfile, 'r') as qrfl:
   query = qrfl.read()
 
 cur.execute(query)
