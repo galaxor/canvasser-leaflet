@@ -1,4 +1,5 @@
 SELECT
+  turfz.canvasid,
   turfz.id AS turfid,
   voter_geom.voterid AS voterid,
   MAX(voter_geom.address) AS address,
@@ -21,10 +22,12 @@ FROM
   LEFT JOIN voter_geom voter_geom ON ST_Within(voter_geom.geom, turfz.geom)
 
 GROUP BY
+  turfz.canvasid,
   turfz.id,
   voter_geom.voterid
 
 ORDER BY
+  turfz.canvasid,
   turfz.id,
 
   MAX(voter_geom.prop_street),
