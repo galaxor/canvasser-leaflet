@@ -12,7 +12,7 @@ SELECT
   MAX((voter.electiondate='2017-11-07')::integer) AS v_nov,
   MAX((voter.electiondate='2017-08-08')::integer) AS v_aug,
 
-  MAX(voter.streetname) AS prop_street,
+  MAX(FLOOR(voter.resstreetnum/100) * 100) AS prop_street,
   MAX(voter.resstreetnum) AS prop_street_num
   
   
