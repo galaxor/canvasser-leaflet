@@ -25,9 +25,20 @@ conn = psycopg2.connect('dbname=postgres user=postgres host=postgres password=%s
 
 cur = conn.cursor()
 
+# This is a bad way to do this.
+# If the arg is a number, that means use the regular query, where I look at the
+# turfz table, and the number means which canvasid we're doing.
+# I query for all the canvasids, but skip the ones I don't care about.
+# If we ever have a lot of canvasids, this is a bad way to do things because it
+# will mean a lot of extra work.  It would be better to put the canvasid into
+# the query.
 queryfile = os.path.join(os.path.dirname(__file__), 'WalkingList.sql')
 if len(sys.argv) > 1:
-  queryfile = sys.argv[1]
+  canvasid = None
+  try:
+    canvasid = int(sys.argv[1])
+  except ValueError:
+    queryfile = sys.argv[1]
 
 with open(queryfile, 'r') as qrfl:
   query = qrfl.read()
@@ -59,6 +70,9 @@ lastside = None
 first = True
 
 for row in namedtuplefetchall(cur):
+  if canvasid and row.canvasid != canvasid:
+    continue
+
   if first:
     print('\\fancyhead[L]{TURF %d}' % row.turfid)
     print('\\fancyhead[C]{%s}' % row.prop_street)
