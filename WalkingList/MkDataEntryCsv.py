@@ -13,6 +13,11 @@ if len(sys.argv) > 1:
 else:
   canvasdate = datetime.datetime.now().strftime('%Y-%m-%d')
 
+queryfile = os.path.join(os.path.dirname(__file__), 'WalkingList.sql')
+if len(sys.argv) > 2:
+  queryfile = sys.argv[2]
+  
+
 def namedtuplefetchall(cursor):
   "Return all rows from a cursor as a namedtuple"
   desc = cursor.description
@@ -23,7 +28,7 @@ conn = psycopg2.connect('dbname=postgres user=postgres host=postgres password=%s
 
 cur = conn.cursor()
 
-with open(os.path.join(os.path.dirname(__file__), 'WalkingList.sql'), 'r') as qrfl:
+with open(queryfile, 'r') as qrfl:
   query = qrfl.read()
 
 cur.execute(query)
@@ -42,7 +47,7 @@ for row in namedtuplefetchall(cur):
     # query is in a separate file, shared with the process that makes the
     # walking sheets.
     # fieldnames = [col[0] for col in cur.description]
-    fieldnames = ['turf', 'canvasdate', 'voterid', 'address', 'apt', 'age', 'gender', 'contacted', 'flierdrop', 'nosolicitors', 'fof', 'notes']
+    fieldnames = ['turf', 'canvasdate', 'voterid', 'address', 'apt', 'firstname', 'lastname', 'contacted', 'flierdrop', 'nosolicitors', 'fof', 'notes']
     csvwriter = csv.DictWriter(sys.stdout, fieldnames)
     csvwriter.writeheader()
   
@@ -53,8 +58,8 @@ for row in namedtuplefetchall(cur):
     'voterid': row.voterid,
     'address': row.address,
     'apt': row.apt,
-    'age': row.age,
-    'gender': row.gender,
+    'firstname': row.firstname,
+    'lastname': row.lastname,
     'contacted': 0,
     'flierdrop': 1,
     'nosolicitors': 0,
