@@ -25,6 +25,20 @@ conn = psycopg2.connect('dbname=postgres user=postgres host=postgres password=%s
 
 cur = conn.cursor()
 
+query = "SELECT * FROM data.contact ORDER BY voterid, canvasdate, canvasid";
+cur.execute(query)
+
+votercontacts = {}
+
+for row in namedtuplefetchall(cur):
+  if row.voterid in votercontacts:
+    votercontacts[row.voterid]['contacts'].append(row)
+  else:
+    votercontacts[row.voterid] = {'contacts': [row], 'fof': None, 'nosolicitors': False}
+
+  votercontacts[row.voterid]['fof'] = row.friendorfoe
+  votercontacts[row.voterid]['nosolicitors'] = row.nosolicitors
+
 # This is a bad way to do this.
 # If the arg is a number, that means use the regular query, where I look at the
 # turfz table, and the number means which canvasid we're doing.
@@ -39,6 +53,9 @@ if len(sys.argv) > 1:
     canvasid = int(sys.argv[1])
   except ValueError:
     queryfile = sys.argv[1]
+
+if len(sys.argv) > 2:
+  canvasdate = sys.argv[2]
 
 with open(queryfile, 'r') as qrfl:
   query = qrfl.read()
@@ -74,7 +91,7 @@ for row in namedtuplefetchall(cur):
     continue
 
   if first:
-    print('\\fancyhead[L]{TURF %d}' % row.turfid)
+    print('\\fancyhead[L]{TURF %d - %s}' % (row.turfid, canvasdate))
     print('\\fancyhead[C]{%s}' % row.prop_street)
     print('\\vbox{')
     first = False
@@ -135,10 +152,6 @@ for row in namedtuplefetchall(cur):
   print()
   print('\\noindent')
   print('\\hspace{6ex}\\ckbx Not Home\\qquad \\ckbx Refused')
-  print()
-
-  print('\\noindent')
-  print('\\hspace{6ex}Friend or Foe* of Shauna: \\framebox{1} \\framebox{2} \\framebox{3} \\framebox{4} \\framebox{5}')
   print()
 
   print('\\noindent')
