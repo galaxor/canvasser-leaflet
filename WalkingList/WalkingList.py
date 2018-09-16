@@ -7,12 +7,15 @@ import sys
 from collections import namedtuple
 
 def escapelatex(txt):
-  escaped = txt.translate(str.maketrans({'\\':  '\\\\',
-                                              '{': '\\{',
-                                              '}': '\\}',
-                                              '%': '%%',
-                                              '#': '\\#',
-                                            }))
+  escaped = ''
+  if txt:
+    escaped = txt.translate(str.maketrans({'\\':  '\\\\',
+                                                '{': '\\{',
+                                                '}': '\\}',
+                                                '%': '%%',
+                                                '#': '\\#',
+                                                '&': '\\&',
+                                              }))
   return escaped
 
 def namedtuplefetchall(cursor):
@@ -46,7 +49,7 @@ for row in namedtuplefetchall(cur):
 # If we ever have a lot of canvasids, this is a bad way to do things because it
 # will mean a lot of extra work.  It would be better to put the canvasid into
 # the query.
-queryfile = os.path.join(os.path.dirname(__file__), 'WalkingList.sql')
+queryfile = os.path.join(os.path.dirname(__file__), 'WalkingList-contacts.sql')
 if len(sys.argv) > 1:
   canvasid = None
   try:
@@ -83,6 +86,7 @@ lastaddr = None
 lastapt = None
 laststreet = None
 lastside = None
+lastvoterid = None
 
 first = True
 
@@ -95,6 +99,12 @@ for row in namedtuplefetchall(cur):
     print('\\fancyhead[C]{%s}' % row.prop_street)
     print('\\vbox{')
     first = False
+
+  if row.voterid == lastvoterid and row.canvasdate:
+    # If it's just another contact of the same person, don't print their whole info again.
+    if row.madecontact:
+      print('\\hspace{4ex}{\\small Note ',row.canvasdate,' (',row.friendorfoe,'): ',escapelatex(row.notes),'}')
+    continue
 
   prop_street_num = row.prop_street_num
   if prop_street_num==None:
@@ -166,6 +176,9 @@ for row in namedtuplefetchall(cur):
   print('\\noindent')
   print('\\hspace{4ex}Notes: \\vspace{3em}')
   print()
+  print('\\noindent')
+  if row.madecontact:
+    print('\\hspace{4ex}{\\small Note ',row.canvasdate,' (',row.friendorfoe,'): ',escapelatex(row.notes),'}')
 
   lastturf = row.turfid
   lastaddr = row.address
