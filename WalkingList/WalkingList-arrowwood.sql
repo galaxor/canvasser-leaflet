@@ -12,12 +12,14 @@ SELECT
   MAX((voter.electiondate='2017-11-07')::integer) AS v_nov,
   MAX((voter.electiondate='2017-08-08')::integer) AS v_aug,
 
-  MAX(FLOOR(voter.resstreetnum/100) * 100) AS prop_street,
+  -- MAX(FLOOR(voter.resstreetnum/100) * 100) AS prop_street,
+  MAX('Lot '||arrowwoodlots.lot) AS prop_street,
   MAX(voter.resstreetnum) AS prop_street_num
   
   
 FROM
   voter voter
+  LEFT JOIN data.arrowwoodlots ON voter.resstreetnum >= arrowwoodlots.startaddr and voter.resstreetnum <= arrowwoodlots.endaddr AND arrowwoodlots.odd = voter.resstreetnum % 2
 
 WHERE
   voter.streetname LIKE '%ARROWWOOD%'
@@ -27,6 +29,6 @@ GROUP BY
 
 ORDER BY
   MAX(voter.streetname),
-  MAX(voter.resstreetnum) % 2,
+  MAX('Lot '||arrowwoodlots.lot),
   MAX(voter.resstreetnum),
   MAX(voter.resext)
