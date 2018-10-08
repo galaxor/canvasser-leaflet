@@ -100,10 +100,18 @@ for row in namedtuplefetchall(cur):
     print('\\vbox{')
     first = False
 
-  if row.voterid == lastvoterid and row.canvasdate:
+  if row.voterid == lastvoterid:
     # If it's just another contact of the same person, don't print their whole info again.
     if row.madecontact:
       print('\\hspace{4ex}{\\small Note ',row.canvasdate,' (',row.friendorfoe,'): ',escapelatex(row.notes),'}')
+      print()
+
+    lastturf = row.turfid
+    lastaddr = row.address
+    laststreet = row.prop_street
+    lastside = prop_street_num % 2
+    lastapt = row.apt
+    lastvoterid = row.voterid
     continue
 
   prop_street_num = row.prop_street_num
@@ -111,9 +119,9 @@ for row in namedtuplefetchall(cur):
     prop_street_num = 0
 
   if prop_street_num % 2 == 0:
-    print('\\fancyhead[R]{Even}')
+    print('\\fancyhead[R]{Even (\\thepage)}')
   else:
-    print('\\fancyhead[R]{Odd}')
+    print('\\fancyhead[R]{Odd (\\thepage)}')
 
   if row.address != lastaddr:
     print('}')
@@ -179,12 +187,14 @@ for row in namedtuplefetchall(cur):
   print('\\noindent')
   if row.madecontact:
     print('\\hspace{4ex}{\\small Note ',row.canvasdate,' (',row.friendorfoe,'): ',escapelatex(row.notes),'}')
+    print()
 
   lastturf = row.turfid
   lastaddr = row.address
   laststreet = row.prop_street
   lastside = prop_street_num % 2
   lastapt = row.apt
+  lastvoterid = row.voterid
 
 print('}')
 print('\\end{document}')

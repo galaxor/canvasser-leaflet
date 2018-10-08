@@ -13,10 +13,13 @@ if len(sys.argv) > 1:
 else:
   canvasdate = datetime.datetime.now().strftime('%Y-%m-%d')
 
-queryfile = os.path.join(os.path.dirname(__file__), 'WalkingList.sql')
+canvasid = None
 if len(sys.argv) > 2:
-  queryfile = sys.argv[2]
-  
+  canvasid = sys.argv[2]
+
+queryfile = os.path.join(os.path.dirname(__file__), 'WalkingList.sql')
+if len(sys.argv) > 3:
+  queryfile = sys.argv[3]
 
 def namedtuplefetchall(cursor):
   "Return all rows from a cursor as a namedtuple"
@@ -50,6 +53,9 @@ for row in namedtuplefetchall(cur):
     fieldnames = ['turf', 'canvasdate', 'voterid', 'address', 'apt', 'firstname', 'lastname', 'contacted', 'flierdrop', 'nosolicitors', 'fof', 'notes']
     csvwriter = csv.DictWriter(sys.stdout, fieldnames)
     csvwriter.writeheader()
+
+  if canvasid and row.canvasid and int(row.canvasid) != int(canvasid):
+    continue
   
   csvwriter.writerow({
     'turf':    'Turf %2d' % row.turfid,

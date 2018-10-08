@@ -49,10 +49,11 @@ LEFT JOIN data.contact ON contact.voterid=walkinglist.voterid
 
 ORDER BY
   canvasid,
-  id,
+  turfid,
 
   prop_street,
   prop_street_num % 2,
   prop_street_num,
   apt,
+  voterid,
   canvasdate
